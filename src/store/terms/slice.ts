@@ -1,5 +1,11 @@
 ﻿import {createSlice} from "@reduxjs/toolkit";
-import type {ITermsState, CreateSpeechAction, SetTermsAction, SetTermAction} from "./types.ts";
+import type {
+    ITermsState,
+    CreateSpeechAction,
+    SetTermsAction,
+    SetTermAction,
+    UploadTermsAction, AddTermsAction, AddTermAction,
+} from "./types.ts";
 
 const initialState: ITermsState = {
     terms: [],
@@ -26,8 +32,16 @@ export const termsSlice = createSlice({
                 }
             }
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        uploadTerms: (_state, _action: UploadTermsAction) => {},
+        addTerms: (state, action: AddTermsAction) => {
+            state.terms = [...state.terms, ...action.payload];
+        },
+        addTerm: (state, action: AddTermAction) => {
+            state.terms.push(action.payload);
+        }
     }
 });
 
-export const {fetchTerms, setTerms, setTerm, createSpeech} = termsSlice.actions;
+export const {fetchTerms, setTerms, setTerm, uploadTerms, addTerms, addTerm, createSpeech} = termsSlice.actions;
 export default termsSlice.reducer;

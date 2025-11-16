@@ -2,6 +2,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {createSpeech, fetchTerms} from "./store/terms/slice.ts";
 import {selectTerms} from "./store/terms/selectors.ts";
 import {useEffect} from "react";
+import {Input} from "./ui/components/Input.tsx";
 
 function App() {
     const dispatch = useDispatch();
@@ -13,6 +14,7 @@ function App() {
 
     return(
         <div>
+            <Input/>
             <ul>
                 {terms.map((item) => (
                     <li key={item.id}>
