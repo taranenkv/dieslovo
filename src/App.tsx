@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {useEffect, useState} from 'react'
+import {onSnapshot, collection} from 'firebase/firestore';
+import {firestore} from "./firebase.ts";
+
+type Color = {
+    id: string;
+    name: string;
+    value: string;
+}
+
+interface DotProps {
+    color: string;
+}
+
+const Dot = ({ color }: DotProps) => {
+    const style = {
+        height: 25,
+        width: 25,
+        margin: "0px 10px",
+        backgroundColor: color,
+        borderRadius: "50%",
+        display: "inline-block",
+    }
+    return <span style={style}></span>
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [colors, setColors] = useState<Color[]>([]);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(
+        () =>
+            onSnapshot(collection(firestore, "colors"), (snapshot) => {
+                setColors(snapshot.docs.map((doc) => ({...doc.data(), id: doc.id}) as Color));
+            }),
+        []
+    );
+
+    return(
+        <div>
+            <ul>
+                {colors.map((color) => (
+                    <li key={color.id}>
+                        <Dot color={color.value} /> {color.name}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 }
 
 export default App

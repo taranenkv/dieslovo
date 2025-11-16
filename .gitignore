@@ -2,6 +2,9 @@
 .env.local
 .env.*.local
 
+# Firebase
+hosting.*.cache
+
 # Logs
 logs
 *.log
