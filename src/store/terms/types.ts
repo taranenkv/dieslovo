@@ -11,3 +11,4 @@ export type SetTermAction = PayloadAction<Term>;
 export type AddTermsAction = PayloadAction<Term[]>;
 export type AddTermAction = PayloadAction<Term>;
 export type UploadTermsAction = PayloadAction<string>;
+export type UploadTermsFromFileAction = PayloadAction<File>;

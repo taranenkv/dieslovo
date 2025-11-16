@@ -3,6 +3,7 @@ import {createSpeech, fetchTerms} from "./store/terms/slice.ts";
 import {selectTerms} from "./store/terms/selectors.ts";
 import {useEffect} from "react";
 import {Input} from "./ui/components/Input.tsx";
+import {FileUploader} from "./ui/components/FileUploader.tsx";
 
 function App() {
     const dispatch = useDispatch();
@@ -15,6 +16,7 @@ function App() {
     return(
         <div>
             <Input/>
+            <FileUploader/>
             <ul>
                 {terms.map((item) => (
                     <li key={item.id}>

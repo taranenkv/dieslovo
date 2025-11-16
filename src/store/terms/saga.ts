@@ -1,6 +1,6 @@
 ﻿import {call, fork, put, takeLatest} from "typed-redux-saga";
-import {addTerm, createSpeech, fetchTerms, setTerm, setTerms, uploadTerms} from "./slice.ts";
-import type {CreateSpeechAction, UploadTermsAction} from "./types.ts";
+import {addTerm, createSpeech, fetchTerms, setTerm, setTerms, uploadTerms, uploadTermsFromFile} from "./slice.ts";
+import type {CreateSpeechAction, UploadTermsAction, UploadTermsFromFileAction} from "./types.ts";
 import {playBase64Audio} from "../helpers/playBase64Audio.ts";
 import {doc, getDoc, setDoc, getDocs, collection} from "firebase/firestore";
 import {firestore} from "../../firebase.ts";
@@ -8,6 +8,7 @@ import {OpenAI} from "openai";
 import {arrayBufferToBase64} from "../helpers/arrayBufferToBase64.ts";
 import type {Term} from "../globalTypes.ts";
 import {parseTerms} from "../helpers/parseTerms.ts";
+import mammoth from "mammoth";
 
 function* fetchTermsWorker() {
     const collectionRef = collection(firestore, "terms");
@@ -26,10 +27,17 @@ function* uploadTermsWorker(action: UploadTermsAction) {
 
     for (const term of rawTerms) {
         const docRef = doc(collectionRef);
-        const newTerm = { id: docRef.id, ...term, audio: null };
-        yield* call(setDoc, docRef, newTerm);
-        yield* put(addTerm(newTerm));
+        yield* call(setDoc, docRef, { ...term, audio: null });
+        yield* put(addTerm({ id: docRef.id, ...term, audio: null }));
     }
+}
+
+function* uploadTermsFromFileWorker(action: UploadTermsFromFileAction) {
+    const file = action.payload;
+    const arrayBuffer = yield* call([file, "arrayBuffer"]);
+    const result = yield* call(mammoth.extractRawText, { arrayBuffer });
+    const text = result.value;
+    yield* put(uploadTerms(text));
 }
 
 function* createSpeechWorker(action: CreateSpeechAction) {
@@ -69,6 +77,7 @@ function* createSpeechWorker(action: CreateSpeechAction) {
 function* termsWatcher() {
     yield* takeLatest(fetchTerms.type, fetchTermsWorker);
     yield* takeLatest(uploadTerms.type, uploadTermsWorker);
+    yield* takeLatest(uploadTermsFromFile.type, uploadTermsFromFileWorker);
     yield* takeLatest(createSpeech.type, createSpeechWorker);
 }
 
